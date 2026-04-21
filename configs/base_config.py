@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # =========================
-# Project Path
+# Project paths
 # =========================
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
@@ -18,9 +18,15 @@ VAL_IDS_PATH = PROCESSED_DATA_DIR / "val_ids.pt"
 # =========================
 # Data config
 # =========================
-TRAIN_RATION = 0.9
+TRAIN_RATIO = 0.9
 BLOCK_SIZE = 64
 BATCH_SIZE = 16
+
+# =========================
+# Model config
+# =========================
+N_EMBD = 128
+DROPOUT = 0.1
 
 # =========================
 # Debug / runtime
