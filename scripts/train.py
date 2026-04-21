@@ -28,18 +28,15 @@ def main():
     device = DEVICE if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
-    # 1. load tokenizer
     tokenizer = CharTokenizer.load(VOCAB_PATH)
     vocab_size = tokenizer.vocab_size
     print(f"Loaded vocab size: {vocab_size}")
 
-    # 2. load processed ids
     train_ids = torch.load(TRAIN_IDS_PATH)
     val_ids = torch.load(VAL_IDS_PATH)
     print(f"Train ids shape: {train_ids.shape}")
     print(f"Val ids shape: {val_ids.shape}")
 
-    # 3. sample one batch
     x, y = get_batch(
         data=train_ids,
         block_size=BLOCK_SIZE,
@@ -51,7 +48,6 @@ def main():
     print(f"x shape: {x.shape}")
     print(f"y shape: {y.shape}")
 
-    # 4. build model
     model = MiniGPT(
         vocab_size=vocab_size,
         block_size=BLOCK_SIZE,
@@ -59,16 +55,14 @@ def main():
         dropout=DROPOUT,
     ).to(device)
 
-    print("\nModel created successfully.")
+    print("\nModel with single-head self-attention created successfully.")
 
-    # 5. forward
     logits, loss = model(x, y)
 
     print("\nForward check:")
     print(f"logits shape: {logits.shape}")
     print(f"loss: {loss.item():.6f}")
 
-    # 6. inspect one position prediction
     probs = torch.softmax(logits[0, 0], dim=-1)
     pred_id = torch.argmax(probs).item()
     pred_char = tokenizer.decode([pred_id])
