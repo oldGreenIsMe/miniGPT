@@ -16,6 +16,8 @@ from configs.base_config import (
     BLOCK_SIZE,
     BATCH_SIZE,
     N_EMBD,
+    N_HEAD,
+    N_LAYER,
     DROPOUT,
     DEVICE,
 )
@@ -52,10 +54,12 @@ def main():
         vocab_size=vocab_size,
         block_size=BLOCK_SIZE,
         n_embd=N_EMBD,
+        n_head=N_HEAD,
+        n_layer=N_LAYER,
         dropout=DROPOUT,
     ).to(device)
 
-    print("\nModel with single-head self-attention created successfully.")
+    print("\nModel with transformer blocks created successfully.")
 
     logits, loss = model(x, y)
 

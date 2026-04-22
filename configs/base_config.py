@@ -26,6 +26,8 @@ BATCH_SIZE = 16
 # Model config
 # =========================
 N_EMBD = 128
+N_HEAD = 4
+N_LAYER = 2
 DROPOUT = 0.1
 
 # =========================
