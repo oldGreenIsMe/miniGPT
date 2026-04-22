@@ -41,10 +41,10 @@ class MiniGPT(nn.Module):
 
         if T > self.block_size:
             raise ValueError(
-                f"Sequence length T={T} exceeds block_size = {self.block_size}"
+                f"Sequence length T={T} exceeds block_size={self.block_size}"
             )
-        
-         # token embeddings: [B, T, C]
+
+        # token embeddings: [B, T, C]
         tok_emb = self.token_embedding_table(idx)
 
         # position embeddings: [T, C]
@@ -72,3 +72,35 @@ class MiniGPT(nn.Module):
             loss = F.cross_entropy(logits_flat, targets_flat)
 
         return logits, loss
+
+    @torch.no_grad()
+    def generate(self, idx, max_new_tokens):
+        """
+        idx: [B, T_start]
+        return: [B, T_start + max_new_tokens]
+        """
+        self.eval()
+
+        for _ in range(max_new_tokens):
+            # 1) only keep the last block_size tokens
+            idx_cond = idx[:, -self.block_size:]
+
+            # 2) forward
+            logits, _ = self(idx_cond)
+
+            # 3) take the logits at the last time step
+            # logits: [B, T, vocab_size]
+            # last_logits: [B, vocab_size]
+            last_logits = logits[:, -1, :]
+
+            # 4) convert to probabilities
+            probs = F.softmax(last_logits, dim=-1)
+
+            # 5) sample next token
+            # next_token: [B, 1]
+            next_token = torch.multinomial(probs, num_samples=1)
+
+            # 6) append to sequence
+            idx = torch.cat((idx, next_token), dim=1)
+
+        return idx
