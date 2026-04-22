@@ -74,12 +74,15 @@ class MiniGPT(nn.Module):
         return logits, loss
 
     @torch.no_grad()
-    def generate(self, idx, max_new_tokens):
+    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
         """
         idx: [B, T_start]
         return: [B, T_start + max_new_tokens]
         """
         self.eval()
+
+        if temperature <= 0:
+            raise ValueError("temperature must be > 0")
 
         for _ in range(max_new_tokens):
             # 1) only keep the last block_size tokens
@@ -93,14 +96,34 @@ class MiniGPT(nn.Module):
             # last_logits: [B, vocab_size]
             last_logits = logits[:, -1, :]
 
-            # 4) convert to probabilities
+            # 4) apply temperature
+            last_logits = last_logits / temperature
+
+            # 5) apply top-k filtering if needed
+            if top_k is not None:
+                k = min(top_k, last_logits.size(-1))
+
+                # topk_vals: [B, k]
+                topk_vals, _ = torch.topk(last_logits, k, dim=-1)
+
+                # each row's kth largest value as threshold
+                threshold = topk_vals[:, [-1]]  # [B, 1]
+
+                # set logits smaller than threshold to -inf
+                last_logits = torch.where(
+                    last_logits < threshold,
+                    torch.full_like(last_logits, float("-inf")),
+                    last_logits,
+                )
+
+            # 6) convert to probabilities
             probs = F.softmax(last_logits, dim=-1)
 
-            # 5) sample next token
+            # 7) sample next token
             # next_token: [B, 1]
             next_token = torch.multinomial(probs, num_samples=1)
 
-            # 6) append to sequence
+            # 8) append to sequence
             idx = torch.cat((idx, next_token), dim=1)
 
         return idx

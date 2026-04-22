@@ -43,7 +43,19 @@
 ## 5. 实验结果
 
 ### Loss 曲线
-（插入 loss_curve.png）
+![loss_curve](D:\ChatGPT学习\AI学习\miniGPT\outputs\loss_curve.png)
+
+### temperature 和 top-k 对比
+
+- `temperature=1.0, top_k=None`：基线，结果中等，后期有重复与碎裂
+
+- `temperature=0.8, top_k=None`：最稳，局部词形更自然
+
+- `temperature=0.8, top_k=10`：更保守，但重复明显增加
+
+- `temperature=1.2, top_k=None`：最发散，失控最明显
+
+- `temperature=1.2, top_k=20`：比纯高温略稳，但仍较混乱
 
 ### 现象
 - 前期 train/val loss 同步下降
