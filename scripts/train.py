@@ -1,6 +1,7 @@
 import random
 import sys
 from pathlib import Path
+import json
 
 import torch
 
@@ -27,11 +28,18 @@ from configs.base_config import (
     LEARNING_RATE,
     SEED,
     DEVICE,
+    OUTPUT_DIR
 )
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 from mini_gpt.tokenizer import CharTokenizer
 from mini_gpt.dataset import get_batch
 from mini_gpt.model import MiniGPT
 from mini_gpt.trainer import estimate_loss
+
+train_loss_history = []
+val_loss_history = []
+step_history = []
 
 
 def set_seed(seed):
@@ -89,6 +97,11 @@ def main():
                 f"val loss {losses['val']:.4f}"
             )
 
+            # ===== 新增：记录 =====
+            step_history.append(step)
+            train_loss_history.append(losses["train"])
+            val_loss_history.append(losses["val"])
+
             if losses["val"] < best_val_loss:
                 best_val_loss = losses["val"]
                 torch.save(model.state_dict(), BEST_MODEL_PATH)
@@ -107,6 +120,17 @@ def main():
         loss.backward()
         optimizer.step()
 
+    loss_data = {
+    "step": step_history,
+    "train_loss": train_loss_history,
+    "val_loss": val_loss_history,
+    }
+    loss_path = OUTPUT_DIR / "loss_history.json"
+
+    with open(loss_path, "w") as f:
+        json.dump(loss_data, f, indent=2)
+
+    print(f"Saved loss history to: {loss_path}")
     print("\nTraining finished.")
     print(f"Best val loss: {best_val_loss:.4f}")
 
