@@ -14,6 +14,7 @@ RAW_TEXT_PATH = RAW_DATA_DIR / "input.txt"
 VOCAB_PATH = PROCESSED_DATA_DIR / "vocab.json"
 TRAIN_IDS_PATH = PROCESSED_DATA_DIR / "train_ids.pt"
 VAL_IDS_PATH = PROCESSED_DATA_DIR / "val_ids.pt"
+BEST_MODEL_PATH = CHECKPOINT_DIR / "best_model.pt"
 
 # =========================
 # Data config
@@ -29,6 +30,14 @@ N_EMBD = 128
 N_HEAD = 4
 N_LAYER = 2
 DROPOUT = 0.1
+
+# =========================
+# Training config
+# =========================
+MAX_ITERS = 2000
+EVAL_INTERVAL = 200
+EVAL_ITERS = 50
+LEARNING_RATE = 3e-4
 
 # =========================
 # Debug / runtime
